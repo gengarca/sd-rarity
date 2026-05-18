@@ -125,13 +125,12 @@ class Rarity(commands.Cog):
 
             rarity_to_collectibles = {}
             for c in enabled_collectibles:
-                rarity_to_collectibles.setdefault(c.rarity, []).append(c)
-
-            sorted_rarities = sorted(rarity_to_collectibles.keys())
+                rarity = int(round(c.rarity * 100))
+                rarity_to_collectibles.setdefault(rarity, []).append(c)
 
             if countryball:
                 target_ball = countryball
-                tier_num = sorted_rarities.index(target_ball.rarity) + 1
+                tier_num = int(round(target_ball.rarity * 100))
                 collectible_name = f"\u200b ⋄ {self.bot.get_emoji(target_ball.emoji_id) or 'N/A'} {target_ball.country}"
 
                 embed = discord.Embed(title=f"{settings.bot_name} Rarity List", color=discord.Color.blurple())
@@ -140,12 +139,11 @@ class Rarity(commands.Cog):
                 return
 
             if tier:
-                if tier < 1 or tier > len(sorted_rarities):
+                if tier not in rarity_to_collectibles:
                     await interaction.followup.send(f"T{tier} does not exist.", ephemeral=True)
                     return
 
-                rarity = sorted_rarities[tier - 1]
-                filtered_collectibles = rarity_to_collectibles[rarity]
+                filtered_collectibles = rarity_to_collectibles[tier]
 
                 chunks = []
                 current_chunk = []
@@ -189,12 +187,12 @@ class Rarity(commands.Cog):
 
             all_entries = []
 
-            rarity_list = list(enumerate(sorted_rarities, 1))
+            sorted_rarities = sorted(rarity_to_collectibles.keys())
             if reverse:
-                rarity_list.reverse()
+                sorted_rarities.reverse()
 
-            for i, rarity in rarity_list:
-                collectibles = rarity_to_collectibles[rarity]
+            for i in sorted_rarities:
+                collectibles = rarity_to_collectibles[i]
                 names = "\n".join(
                     f"\u200b ⋄ {self.bot.get_emoji(c.emoji_id) or 'N/A'} {c.country}" for c in collectibles
                 )

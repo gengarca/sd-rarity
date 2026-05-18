@@ -1,6 +1,6 @@
 # BallsDex V3 Rarity Package
 
-A dynamic rarity list for **BallsDex V3**. Players can view the rarity list of collectibles and their tiers.
+A rarity list package for **BallsDex V3**. Players can view the rarity list of collectibles and their tiers.
 
 ## Commands
 
@@ -22,7 +22,7 @@ Add the following configuration:
 
 ```toml
 [[ballsdex.packages]]
-location = "git+https://github.com/hiboman/BallsDex-Rarity-Pack.git@0.0.2#master"
+location = "git+https://github.com/hiboman/BallsDex-Rarity-Pack.git@0.0.3#master"
 path = "rarity"
 enabled = true
 ```
@@ -38,7 +38,7 @@ enabled = true
 
 # Rarity Package
 [[ballsdex.packages]]
-location = "git+https://github.com/hiboman/BallsDex-Rarity-Pack.git@0.0.2#master"
+location = "git+https://github.com/hiboman/BallsDex-Rarity-Pack.git@0.0.3#master"
 path = "rarity"
 enabled = true
 ```
