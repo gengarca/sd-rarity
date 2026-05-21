@@ -9,6 +9,8 @@ A rarity list package for **BallsDex V3**. Players can view the rarity list of c
 | `/balls rarity` | Show the rarity list of the collectibles |
 | `/balls rarity countryball` | Show the rarity tier for a specific countryball |
 | `/balls rarity tier` | Show all collectibles in a specific rarity tier |
+| `/balls rarity specials:True` | Show enabled specials and their spawn chances |
+| `/balls rarity special` | Show the spawn chance for a specific special |
 
 ## Installation
 
