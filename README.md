@@ -14,7 +14,11 @@ A rarity list package for **BallsDex V3**. Players can view the rarity list of c
 
 ## Installation
 
-### 1 — Configure extra.toml
+### 1 — Important Notes
+
+You may change the items per page in the code to suit your dex better - it's defaulted at 2.
+
+### 2 — Configure extra.toml
 
 **If the file doesn't exist:** Create a new file `extra.toml` in your `config` folder under the BallsDex directory.
 
@@ -24,7 +28,7 @@ Add the following configuration:
 
 ```toml
 [[ballsdex.packages]]
-location = "git+https://github.com/hiboman/BallsDex-Rarity-Pack.git@0.0.3#master"
+location = "git+https://github.com/MapsDex-Team/BallsDex-Rarity-Pack.git@0.0.4#master"
 path = "rarity"
 enabled = true
 ```
@@ -34,18 +38,18 @@ enabled = true
 ```toml
 # First package
 [[ballsdex.packages]]
-location = "git+https://github.com/example/other-package.git@0.0.1#master"
+location = "git+https://github.com/example/other-package.git"
 path = "other"
 enabled = true
 
 # Rarity Package
 [[ballsdex.packages]]
-location = "git+https://github.com/hiboman/BallsDex-Rarity-Pack.git@0.0.3#master"
+location = "git+https://github.com/MapsDex-Team/BallsDex-Rarity-Pack.git@0.0.4#master"
 path = "rarity"
 enabled = true
 ```
 
-### 2 — Rebuild and start the bot
+### 3 — Rebuild and start the bot
 
 ```bash
 docker compose build

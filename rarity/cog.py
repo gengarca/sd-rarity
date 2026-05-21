@@ -14,6 +14,10 @@ if TYPE_CHECKING:
 
 log = logging.getLogger("ballsdex.packages.rarity")
 
+# Configuration constants
+ITEMS_PER_PAGE = 2 # How many tiers are shown on a page
+# INTEGER
+
 class EmbedPaginator(discord.ui.View):
     """A simple embed paginator for Discord."""
 
@@ -198,7 +202,7 @@ class Rarity(commands.Cog):
                 sorted_specials = sorted(
                     visible_specials,
                     key=lambda x: x.rarity,
-                    reverse=not reverse,
+                    reverse=reverse,
                 )
 
                 all_entries = []
@@ -232,15 +236,29 @@ class Rarity(commands.Cog):
                         all_entries.append((f"∥ {percentage}", names))
 
                 pages = []
-                for i in range(0, len(all_entries), 2):
-                    page_entries = all_entries[i:i+2]
+                page_groups = []
+                current_page = []
+
+                for entry in all_entries:
+                    name, _ = entry
+                    if current_page and (
+                        len(current_page) >= ITEMS_PER_PAGE or name == current_page[-1][0]
+                    ):
+                        page_groups.append(current_page)
+                        current_page = []
+                    current_page.append(entry)
+
+                if current_page:
+                    page_groups.append(current_page)
+
+                for page_number, page_entries in enumerate(page_groups, start=1):
                     embed = discord.Embed(
                         title=specials_rarity_list_title,
                         color=discord.Color.blurple(),
                     )
                     for name, value in page_entries:
                         embed.add_field(name=name, value=value, inline=False)
-                    embed.set_footer(text=f"Page {len(pages)+1}/{(len(all_entries)+1)//2}")
+                    embed.set_footer(text=f"Page {page_number}/{len(page_groups)}")
                     pages.append(embed)
 
                 if len(pages) == 1:
@@ -250,16 +268,16 @@ class Rarity(commands.Cog):
                     view.message = await interaction.followup.send(embed=pages[0], view=view)
                 return
 
-            enabled_collectibles = [x for x in balls.values() if x.enabled]
+            enabled_collectibles = [x for x in balls.values() if x.enabled and x.rarity > 0]
 
             if not enabled_collectibles:
                 await interaction.followup.send(
-                    f"There are no collectibles registered in {settings.bot_name} yet.",
+                    f"There are no {settings.plural_collectible_name} registered in {settings.bot_name} yet.",
                     ephemeral=True,
                 )
                 return
 
-            rarities = [c.rarity for c in enabled_collectibles if c.rarity > 0]
+            rarities = [c.rarity for c in enabled_collectibles]
             min_rarity = min(rarities) if rarities else 1.0
             max_rarity = max(rarities) if rarities else 1.0
 
@@ -279,6 +297,13 @@ class Rarity(commands.Cog):
 
             if countryball:
                 target_ball = countryball
+                if target_ball.rarity <= 0:
+                    await interaction.followup.send(
+                        f"That {settings.collectible_name} is not included in the rarity list.",
+                        ephemeral=True,
+                    )
+                    return
+
                 if max_rarity > min_rarity:
                     tier_num = int((target_ball.rarity - min_rarity) * multiplier + 1.5)
                 else:
@@ -374,15 +399,29 @@ class Rarity(commands.Cog):
                     all_entries.append((f"∥ T{i}", names))
 
             pages = []
-            for i in range(0, len(all_entries), 2):
-                page_entries = all_entries[i:i+2]
+            page_groups = []
+            current_page = []
+
+            for entry in all_entries:
+                name, _ = entry
+                if current_page and (
+                    len(current_page) >= ITEMS_PER_PAGE or name == current_page[-1][0]
+                ):
+                    page_groups.append(current_page)
+                    current_page = []
+                current_page.append(entry)
+
+            if current_page:
+                page_groups.append(current_page)
+
+            for page_number, page_entries in enumerate(page_groups, start=1):
                 embed = discord.Embed(
                     title=balls_rarity_list_title,
                     color=discord.Color.blurple()
                 )
                 for name, value in page_entries:
                     embed.add_field(name=name, value=value, inline=False)
-                embed.set_footer(text=f"Page {len(pages)+1}/{(len(all_entries)+1)//2}")
+                embed.set_footer(text=f"Page {page_number}/{len(page_groups)}")
                 pages.append(embed)
 
             if not pages:
