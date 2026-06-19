@@ -268,7 +268,7 @@ class Rarity(commands.Cog):
                     view.message = await interaction.followup.send(embed=pages[0], view=view)
                 return
 
-            enabled_collectibles = [x for x in balls.values() if x.enabled and x.rarity > 0]
+            enabled_collectibles = [x for x in balls.values() if x.enabled]
 
             if not enabled_collectibles:
                 await interaction.followup.send(
@@ -277,7 +277,7 @@ class Rarity(commands.Cog):
                 )
                 return
 
-            rarities = [c.rarity for c in enabled_collectibles]
+            rarities = [c.rarity for c in enabled_collectibles if c.rarity > 0]
             min_rarity = min(rarities) if rarities else 1.0
             max_rarity = max(rarities) if rarities else 1.0
 
@@ -288,11 +288,13 @@ class Rarity(commands.Cog):
 
             rarity_to_collectibles = {}
             for c in enabled_collectibles:
-                if max_rarity > min_rarity:
+                if c.rarity == 0:
+                    tier_num = 0
+                elif max_rarity > min_rarity:
                     tier_num = int((c.rarity - min_rarity) * multiplier + 1.5)
                 else:
                     tier_num = 1
-                tier_num = max(1, tier_num)
+                tier_num = max(0, tier_num)
                 rarity_to_collectibles.setdefault(tier_num, []).append(c)
 
             if countryball:
