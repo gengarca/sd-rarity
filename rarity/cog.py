@@ -276,8 +276,15 @@ class Rarity(commands.Cog):
                     ephemeral=True,
                 )
                 return
+            
+            rarities = [c.rarity for c in enabled_collectibles if c.rarity > 0]
+            min_rarity = min(rarities) if rarities else 1.0
+            max_rarity = max(rarities) if rarities else 1.0
 
-            rarities = [c.rarity for c in enabled_collectibles]
+            if max_rarity > min_rarity:
+                multiplier = 99.0 / (max_rarity - min_rarity)
+            else:
+                multiplier = 1.0
 
             sorted_by_rarity = sorted(enabled_collectibles, key=lambda c: c.rarity)
             
