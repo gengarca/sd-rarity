@@ -277,15 +277,6 @@ class Rarity(commands.Cog):
                 )
                 return
             
-            rarities = [c.rarity for c in enabled_collectibles if c.rarity > 0]
-            min_rarity = min(rarities) if rarities else 1.0
-            max_rarity = max(rarities) if rarities else 1.0
-
-            if max_rarity > min_rarity:
-                multiplier = 99.0 / (max_rarity - min_rarity)
-            else:
-                multiplier = 1.0
-
             sorted_by_rarity = sorted(enabled_collectibles, key=lambda c: c.rarity)
             
             rarity_to_collectibles = {}
@@ -309,11 +300,19 @@ class Rarity(commands.Cog):
                     )
                     return
 
-                if max_rarity > min_rarity:
-                    tier_num = int((target_ball.rarity - min_rarity) * multiplier + 1.5)
-                else:
-                    tier_num = 1
-                tier_num = max(1, tier_num)
+                sorted_by_rarity = sorted([c for c in enabled_collectibles if c.rarity > 0], key=lambda c: c.rarity)
+                rank = 1
+                i = 0
+                tier_num = 1
+                while i < len(sorted_by_rarity):
+                    current_rarity = sorted_by_rarity[i].rarity
+                    group = [c for c in sorted_by_rarity if c.rarity == current_rarity]
+                    if current_rarity == target_ball.rarity:
+                        tier_num = rank
+                        break
+                    rank += len(group)
+                    i += len(group)
+
                 collectible_name = f"\u200b ⋄ {self.bot.get_emoji(target_ball.emoji_id) or 'N/A'} {target_ball.country}"
 
                 embed = discord.Embed(title=balls_rarity_list_title, color=discord.Color.blurple())
