@@ -268,7 +268,7 @@ class Rarity(commands.Cog):
                     view.message = await interaction.followup.send(embed=pages[0], view=view)
                 return
 
-            enabled_collectibles = [x for x in balls.values() if x.enabled and x.rarity > 0]
+            enabled_collectibles = [x for x in balls.values() if x.enabled]
 
             if not enabled_collectibles:
                 await interaction.followup.send(
@@ -277,9 +277,14 @@ class Rarity(commands.Cog):
                 )
                 return
             
-            sorted_by_rarity = sorted(enabled_collectibles, key=lambda c: c.rarity)
-            
+            zero_collectibles = [c for c in enabled_collectibles if c.rarity == 0]
+            nonzero_collectibles = [c for c in enabled_collectibles if c.rarity > 0]
+            sorted_by_rarity = sorted(nonzero_collectibles, key=lambda c: c.rarity)
+
             rarity_to_collectibles = {}
+            if zero_collectibles:
+                rarity_to_collectibles[0] = zero_collectibles
+
             rank = 1
             i = 0
             while i < len(sorted_by_rarity):
@@ -293,25 +298,21 @@ class Rarity(commands.Cog):
 
             if countryball:
                 target_ball = countryball
-                if target_ball.rarity <= 0:
-                    await interaction.followup.send(
-                        f"That {settings.collectible_name} is not included in the rarity list.",
-                        ephemeral=True,
-                    )
-                    return
-
-                sorted_by_rarity = sorted([c for c in enabled_collectibles if c.rarity > 0], key=lambda c: c.rarity)
-                rank = 1
-                i = 0
-                tier_num = 1
-                while i < len(sorted_by_rarity):
-                    current_rarity = sorted_by_rarity[i].rarity
-                    group = [c for c in sorted_by_rarity if c.rarity == current_rarity]
-                    if current_rarity == target_ball.rarity:
-                        tier_num = rank
-                        break
-                    rank += len(group)
-                    i += len(group)
+                if target_ball.rarity == 0:
+                    tier_num = 0
+                else:
+                    sorted_by_rarity = sorted([c for c in enabled_collectibles if c.rarity > 0], key=lambda c: c.rarity)
+                    rank = 1
+                    i = 0
+                    tier_num = 1
+                    while i < len(sorted_by_rarity):
+                        current_rarity = sorted_by_rarity[i].rarity
+                        group = [c for c in sorted_by_rarity if c.rarity == current_rarity]
+                        if current_rarity == target_ball.rarity:
+                            tier_num = rank
+                            break
+                        rank += len(group)
+                        i += len(group)
 
                 collectible_name = f"\u200b ⋄ {self.bot.get_emoji(target_ball.emoji_id) or 'N/A'} {target_ball.country}"
 
@@ -320,7 +321,7 @@ class Rarity(commands.Cog):
                 await interaction.followup.send(embed=embed)
                 return
 
-            if tier:
+            if tier is not None:
                 if tier not in rarity_to_collectibles:
                     await interaction.followup.send(f"T{tier} does not exist.", ephemeral=True)
                     return
@@ -369,9 +370,11 @@ class Rarity(commands.Cog):
 
             all_entries = []
 
-            sorted_rarities = sorted(rarity_to_collectibles.keys())
+            sorted_rarities = sorted(rarity_to_collectibles.keys(), key=lambda x: (x != 0, x))
             if reverse:
-                sorted_rarities.reverse()
+                non_zero = [r for r in sorted_rarities if r != 0]
+                non_zero.reverse()
+                sorted_rarities = ([0] if 0 in sorted_rarities else []) + non_zero
 
             for i in sorted_rarities:
                 collectibles = rarity_to_collectibles[i]
