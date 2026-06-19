@@ -318,7 +318,7 @@ class Rarity(commands.Cog):
                 await interaction.followup.send(embed=embed)
                 return
 
-            if tier:
+            if tier is not None:
                 if tier not in rarity_to_collectibles:
                     await interaction.followup.send(f"T{tier} does not exist.", ephemeral=True)
                     return
